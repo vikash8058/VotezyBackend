@@ -34,7 +34,7 @@ public class ElectionResultService {
 		}
 		
 		if(electionRepo.count()==1) {
-			throw new ResourceNotFoundException("Election Result was already declared with name : "+electionRepo.getById((long)1).getElectionName());
+			throw new ResourceNotFoundException("Election Result was already declared with electionName : "+electionRepo.getById((long)1).getElectionName());
 		}
 		
 		
