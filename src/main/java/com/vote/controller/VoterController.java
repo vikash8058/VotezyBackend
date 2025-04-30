@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/voters")
+@CrossOrigin
 public class VoterController {
 	private VoterService voterService;
 
@@ -42,7 +44,7 @@ public class VoterController {
 		return new ResponseEntity<>(voter,HttpStatus.OK);
 	}
 	
-	@GetMapping()
+	@GetMapping("/get")
 	public ResponseEntity<List<Voter>> getVoter(){
 		List<Voter> voter=voterService.getAllVoters();
 		return new ResponseEntity<>(voter,HttpStatus.OK);
@@ -54,7 +56,7 @@ public class VoterController {
 		return new ResponseEntity<>(updatedVoter,HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/{id}")
+	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<String> deleteVoter(@PathVariable Long id){
 		voterService.deleteVoter(id);
 		return new ResponseEntity<>("Voter with id : "+id+" has been deleted successfully",HttpStatus.OK);

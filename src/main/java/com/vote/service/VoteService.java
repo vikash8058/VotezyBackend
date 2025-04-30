@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import com.vote.entity.Candidate;
 import com.vote.entity.Vote;
 import com.vote.entity.Voter;
+import com.vote.exception.ElectionResultAlreadyDeclaredException;
 import com.vote.exception.ResourceNotFoundException;
 import com.vote.exception.VoteNotAllowedException;
 import com.vote.repository.CandidateRepo;
+import com.vote.repository.ElectionResultRepo;
 import com.vote.repository.VoteRepo;
 import com.vote.repository.VoterRepo;
 
@@ -22,16 +24,22 @@ public class VoteService {
 	private VoteRepo voteRepo;
 	private VoterRepo voterRepo;
 	private CandidateRepo candiRepo;
+	private ElectionResultRepo electionRepo;
 	
 	@Autowired
-	public VoteService(VoteRepo voteRepo, VoterRepo voterRepo, CandidateRepo candiRepo) {
+	public VoteService(VoteRepo voteRepo, VoterRepo voterRepo, CandidateRepo candiRepo,ElectionResultRepo electionRepo) {
 		this.voteRepo = voteRepo;
 		this.voterRepo = voterRepo;
 		this.candiRepo = candiRepo;
+		this.electionRepo=electionRepo;
 	}
 	
 	@Transactional
 	public Vote castVote(Long voterId, Long candidateId ) {
+		if(electionRepo.count()==1) {
+			throw new ElectionResultAlreadyDeclaredException("Voter can not cast vote because Election Result has been already declared");
+		}
+		
 		if(!voterRepo.existsById(voterId)) {
 			throw new ResourceNotFoundException("Voter not found with this ID : "+voterId);
 		}
