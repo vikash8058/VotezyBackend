@@ -28,21 +28,22 @@ function loadCandidates() {
 
 // Add candidate
 function getDuplicateErrorMessage(candidateData, candidates) {
-  if (
-    candidates.some(
-      (candidate) =>
-        candidate.name.toLowerCase() === candidateData.name.toLowerCase()
-    )
-  ) {
-    return `Candidate with name "${candidateData.name}" is already enrolled.`;
+  const sameNameSameParty = candidates.some(
+    (candidate) =>
+      candidate.name.toLowerCase() === candidateData.name.toLowerCase() &&
+      candidate.party.toLowerCase() === candidateData.party.toLowerCase()
+  );
+
+  if (sameNameSameParty) {
+    return `Candidate with name "${candidateData.name}" is already enrolled in that party.`;
   }
 
-  if (
-    candidates.some(
-      (candidate) =>
-        candidate.party.toLowerCase() === candidateData.party.toLowerCase()
-    )
-  ) {
+  const sameParty = candidates.some(
+    (candidate) =>
+      candidate.party.toLowerCase() === candidateData.party.toLowerCase()
+  );
+
+  if (sameParty) {
     return "One party can have only one candidate.";
   }
 
