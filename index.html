@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votezy - Secure Online Voting Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: #5dade2;
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-img {
+            height: 45px;
+            width: auto;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+            transition: filter 0.3s ease;
+        }
+
+        .logo:hover .logo-img {
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 50%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(25, 106, 193, 0.4);
+            color: white;
+        }
+
+        /* Voting Cards Section */
+        .voting-section {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #1e293b;
+        }
+
+        .voting-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .voting-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .voting-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            border-color: #196ac1;
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-button {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .voting-card:hover .card-button {
+            background: #196ac1;
+            color: white;
+            border-color: #196ac1;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            background: linear-gradient(135deg, rgba(25, 106, 193, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+            padding: 4rem 2rem;
+            margin: 4rem 0;
+            border-radius: 20px;
+            margin-left: 2rem;
+            margin-right: 2rem;
+        }
+
+        .stats-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(25, 106, 193, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #196ac1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #196ac1;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(25, 106, 193, 0.15);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .feature-description {
+            color: #64748b;
+        }
+
+        /* Help Modal */
+        .help-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .help-modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .help-modal h2 {
+            color: #196ac1;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .help-content {
+            color: #64748b;
+            line-height: 1.8;
+        }
+
+        .help-content .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .help-content .contact-item:hover {
+            background: #e2e8f0;
+        }
+
+        .help-content .contact-item i {
+            color: #196ac1;
+            width: 20px;
+            text-align: center;
+        }
+
+        .help-content a {
+            color: #196ac1;
+            text-decoration: none;
+        }
+
+        .help-content a:hover {
+            text-decoration: underline;
+        }
+
+        .close-help {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-help:hover {
+            color: #196ac1;
+            background: #f1f5f9;
+        }
+
+        /* Chatbot Widget */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1500;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(25, 106, 193, 0.3);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .chatbot-widget:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(25, 106, 193, 0.4);
+        }
+
+        .chatbot-widget i {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 20px rgba(25, 106, 193, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(25, 106, 193, 0.6);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(25, 106, 193, 0.3);
+            }
+        }
+
+        /* Chatbot Modal */
+        .chatbot-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            right: 30px;
+            bottom: 100px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: chatbotSlideIn 0.3s ease-out;
+        }
+
+        @keyframes chatbotSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .chatbot-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 4rem 2rem 1rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #f1f5f9;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #60a5fa;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: #196ac1;
+            transform: translateY(-2px);
+        }
+
+        .contact-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contact-link:hover {
+            color: #60a5fa;
+            transform: translateX(3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #475569;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-bottom-left p {
+            color: #cbd5e1;
+        }
+
+        /* V3S Attribution - Centered and Enhanced */
+        .v3s-attribution {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 50%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(25, 106, 193, 0.2);
+            backdrop-filter: blur(10px);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 4px 15px rgba(25, 106, 193, 0.2);
+            }
+            to {
+                box-shadow: 0 6px 20px rgba(25, 106, 193, 0.4);
+            }
+        }
+
+        .v3s-logo {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #196ac1 0%, #2563eb 50%, #7c3aed 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 0.9rem;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .legal-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .legal-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .legal-links a:hover {
+            color: #60a5fa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .voting-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-section {
+                margin-left: 1rem;
+                margin-right: 1rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+                position: relative;
+            }
+
+            .legal-links {
+                justify-content: center;
+            }
+
+            .v3s-attribution {
+                position: static;
+                transform: none;
+                margin-top: 1rem;
+            }
+
+            .chatbot-modal {
+                width: calc(100vw - 40px);
+                height: 70vh;
+                right: 20px;
+                bottom: 80px;
+            }
+
+            .help-modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 1.5rem;
+            }
+
+            .chatbot-widget {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .chatbot-widget i {
+                font-size: 1.2rem;
+            }
+
+            .logo-img {
+                height: 35px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo-img {
+                height: 30px;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation for stats */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-item.animate {
+            animation: countUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#home" class="logo">
+                <img src="votezy logo.png" alt="Votezy Logo" class="logo-img">
+            </a>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="scrollToSection('features')">Features</button>
+                <button class="nav-btn" onclick="scrollToSection('about')">About</button>
+                <button class="nav-btn" onclick="showHelp()">Help</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1 class="hero-title">Secure Digital Voting for Modern Democracy</h1>
+        <p class="hero-subtitle">Experience the future of voting with our secure, transparent, and accessible online platform powered by advanced encryption and biometric verification.</p>
+        <a href="#voting" class="cta-button">
+            <i class="fas fa-vote-yea"></i>
+            Start Voting Now
+        </a>
+    </section>
+
+    <!-- Voting Cards Section -->
+    <section class="voting-section" id="voting">
+        <h2 class="section-title">Choose Your Role</h2>
+        <div class="voting-cards">
+            <div class="voting-card" data-role="admin">
+                <div class="card-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="card-title">Election Administrator</h3>
+                <p class="card-description">Manage elections, configure voting parameters, monitor results, and ensure electoral integrity.</p>
+                <button class="card-button">Access Admin Panel</button>
+            </div>
+            
+            <div class="voting-card" data-role="voter">
+                <div class="card-icon">
+                    <i class="fas fa-vote-yea"></i>
+                </div>
+                <h3 class="card-title">Registered Voter</h3>
+                <p class="card-description">Cast your secure ballot, verify your vote, and participate in democratic processes.</p>
+                <button class="card-button">Cast Your Vote</button>
+            </div>
+            
+            <div class="voting-card" data-role="candidate">
+                <div class="card-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="card-title">Candidate</h3>
+                <p class="card-description">Register your candidacy, manage your campaign profile, and track election progress.</p>
+                <button class="card-button">Register as Candidate</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="stats-container">
+            <h2 class="section-title">Trusted by Millions</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-count="950">0</div>
+                    <div class="stat-label">Million+ Eligible Voters</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="1000">0</div>
+                    <div class="stat-label">Thousand+ Polling Stations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="67.4">0</div>
+                    <div class="stat-label">% 2019 Turnout</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-count="99.9">0</div>
+                    <div class="stat-label">% Platform Uptime</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <h2 class="section-title">Why Choose Votezy?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">📲✨ Promoting Digitalization</h3>
+                <p class="feature-description">Votezy promotes digitalization by enabling secure online voting with real-time result dashboards, eliminating manual paperwork.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">🌍 Accessible Everywhere</h3>
+                <p class="feature-description">Vote from anywhere with internet access. Our platform works on all devices and supports multiple languages.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">⚡ Instant Results</h3>
+                <p class="feature-description">Real-time vote counting and transparent result verification eliminate waiting times and reduce human error.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">🎯 User-Friendly</h3>
+                <p class="feature-description">Intuitive interface designed for voters of all ages and technical backgrounds. No training required.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">📊 Transparent Process</h3>
+                <p class="feature-description">Every vote is recorded with a verifiable audit trail. Monitor election integrity in real-time.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3 class="feature-title">🌱 Eco-Friendly</h3>
+                <p class="feature-description">Reduce paper waste and carbon footprint. Digital voting is the sustainable choice for the future.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Help Modal -->
+    <div class="help-modal" id="helpModal">
+        <div class="help-modal-content">
+            <button class="close-help" onclick="closeHelp()">&times;</button>
+            <h2><i class="fas fa-life-ring"></i> Help Center</h2>
+            <div class="help-content">
+                <p style="margin-bottom: 1.5rem; color: #1e293b; font-weight: 500;">Need assistance? We're here to help!</p>
+                
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <strong>Email Support</strong><br>
+                        <a href="mailto:votezy9464@gmail.com">votezy9464@gmail.com</a>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <strong>Phone Support</strong><br>
+                        <a href="tel:+919889626386">+91 98896 26386</a>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <strong>Office Address</strong><br>
+                        Technocrats Institute, Bhopal, MP
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <strong>Support Hours</strong><br>
+                        Monday - Friday: 9:00 AM - 6:00 PM
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-widget" onclick="toggleChatbot()" title="Chat with us">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+        <iframe src="chatbot.html" class="chatbot-iframe" title="Votezy Assistant"></iframe>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" id="about">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Votezy</h3>
+                <p style="color: #cbd5e1; margin-bottom: 1rem;">Empowering democracy through secure and accessible digital voting technology.</p>
+                <div class="social-links">
+                    <a href="https://facebook.com/votezy" class="social-link" target="_blank" rel="noopener">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/votezy" class="social-link" target="_blank" rel="noopener">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/votezy" class="social-link" target="_blank" rel="noopener">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://github.com/votezy" class="social-link" target="_blank" rel="noopener">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="#voting">Get Started</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#help" onclick="showHelp()">Help Center</a></li>
+                    <li><a href="#security">Security</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact Information</h3>
+                <div style="color: #cbd5e1;">
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><i class="fas fa-envelope" style="margin-right: 0.5rem; color: #2563eb;"></i> <a href="mailto:votezy9464@gmail.com" class="contact-link">votezy9464@gmail.com</a></p>
+                    <p style="color: #cbd5e1; margin-bottom: 0.75rem;"><i class="fas fa-phone" style="margin-right: 0.5rem; color: #3498db;"></i> <a href="tel:+919889626386" class="contact-link">+91 98896 26386</a></p>
+                    <p style="margin-bottom: 0.75rem;"><i class="fas fa-map-marker-alt" style="margin-right: 0.5rem; color: #3498db;"></i> Technocrats Institute, Bhopal, MP</p>
+                    <p><i class="fas fa-clock" style="margin-right: 0.5rem; color: #3498db;"></i> Mon-Fri: 9:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-left">
+                <p>&copy; 2025 Votezy. All rights reserved. | Student Project - Technocrats Group of Institutions</p>
+            </div>
+            <div class="legal-links">
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="/security">Security</a>
+                <a href="/accessibility">Accessibility</a>
+            </div>
+        </div>
+        
+        <!-- V³S Attribution - Centered in Middle -->
+        <div class="v3s-attribution">
+            <div class="v3s-logo">V³S</div>
+            <span>Built with ❤️ by V³S</span>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let chatbotOpen = false;
+
+        // Chatbot functionality
+        function toggleChatbot() {
+            const modal = document.getElementById('chatbotModal');
+            chatbotOpen = !chatbotOpen;
+            modal.style.display = chatbotOpen ? 'block' : 'none';
+        }
+
+        function closeChatbot() {
+            const modal = document.getElementById('chatbotModal');
+            chatbotOpen = false;
+            modal.style.display = 'none';
+        }
+
+        // Voting card click handlers with proper redirection
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.voting-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const role = card.getAttribute('data-role');
+                    
+                    // Store role for login page
+                    try {
+                        localStorage.setItem('selectedRole', role.toUpperCase());
+                        sessionStorage.setItem('selectedRole', role.toUpperCase());
+                    } catch (e) {
+                        console.warn('Storage not available:', e);
+                    }
+                    
+                    // Direct redirection to login page
+                    window.location.href = `login.html?role=${encodeURIComponent(role)}`;
+                });
+            });
+
+            // Handle button clicks within cards
+            document.querySelectorAll('.card-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const card = button.closest('.voting-card');
+                    if (card) {
+                        card.click();
+                    }
+                });
+            });
+        });
+
+        // Smooth scrolling
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+        }
+
+        // Help functions
+        function showHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const helpModal = document.getElementById('helpModal');
+            const chatbotModal = document.getElementById('chatbotModal');
+            
+            if (event.target === helpModal) {
+                closeHelp();
+            }
+            if (event.target === chatbotModal) {
+                closeChatbot();
+            }
+        }
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeHelp();
+                closeChatbot();
+            }
+        });
+
+        // Animate statistics on scroll
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            statNumbers.forEach(stat => {
+                const target = parseFloat(stat.getAttribute('data-count'));
+                const increment = target / 100;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    if (target >= 100) {
+                        stat.textContent = Math.floor(current) + (target === 950 ? 'M+' : target === 1000 ? 'K+' : '');
+                    } else {
+                        stat.textContent = current.toFixed(1) + '%';
+                    }
+                }, 20);
+            });
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.classList.add('animate');
+                    
+                    // Trigger stats animation when stats section comes into view
+                    if (entry.target.classList.contains('stats-container')) {
+                        animateStats();
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const elementsToObserve = document.querySelectorAll('.voting-card, .feature-card, .stat-item, .stats-container');
+            
+            elementsToObserve.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.header');
+            if (window.scrollY > 50) {
+                header.style.boxShadow = '0 4px 30px rgba(25, 106, 193, 0.3)';
+            } else {
+                header.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.15)';
+            }
+        });
+
+        // CTA button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctaButton = document.querySelector('.cta-button');
+            if (ctaButton) {
+                ctaButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.getElementById('voting').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                });
+            }
+        });
+
+        // Add hover effects and accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus indicators for accessibility
+            document.querySelectorAll('.voting-card, .nav-btn, .cta-button').forEach(element => {
+                element.addEventListener('focus', function() {
+                    this.style.outline = '2px solid #196ac1';
+                    this.style.outlineOffset = '2px';
+                });
+                
+                element.addEventListener('blur', function() {
+                    this.style.outline = 'none';
+                });
+            });
+
+            // Add smooth transitions
+            const interactiveElements = document.querySelectorAll('button, a, .voting-card, .feature-card');
+            interactiveElements.forEach(element => {
+                element.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+        });
+
+        // Console welcome message
+        console.log(`
+        🗳️  Welcome to Votezy - Secure Digital Voting Platform
+        
+        👨‍💻 Built with ❤️ by V³S (Innovative Digital Solutions)
+        📧 Contact: votezy9464@gmail.com
+        📱 Phone: +91 98896 26386
+        🏢 Technocrats Group of Institute, Bhopal, MP
+        
+        🚀 Features:
+        ✅ Bank-level Security
+        ✅ Real-time Results  
+        ✅ Mobile Responsive
+        ✅ Accessibility Compliant
+        ✅ Modern UI/UX
+        
+        🔧 Tech Stack: HTML5, CSS3, JavaScript ES6+
+        `);
+    </script>
+</body>
+</html>

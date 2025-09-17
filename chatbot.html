@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votezy AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Chatbot Button */
+        #chatbot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        #chatbot-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 25px;
+            height: 25px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        /* Chatbot Popup */
+        #chatbot-popup {
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            transform: scale(0) translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow: hidden;
+        }
+
+        #chatbot-popup.active {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Header */
+        .chatbot-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            position: relative;
+        }
+
+        .chatbot-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .chatbot-title h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chatbot-title .status {
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        #chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        #chatbot-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Messages Container */
+        #chatbot-messages {
+            height: 440px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8fafc;
+            scroll-behavior: smooth;
+        }
+
+        #chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbot-messages::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        #chatbot-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #e2e8f0;
+            order: 1;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            margin-left: auto;
+            order: 1;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        /* Welcome Message Styling */
+        .welcome-message {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quick-action {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .quick-action:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                background: #cbd5e1;
+            }
+            30% {
+                transform: translateY(-10px);
+                background: #4f46e5;
+            }
+        }
+
+        /* Input Area */
+        .chatbot-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        #chatbot-input {
+            flex-grow: 1;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            padding: 12px 16px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 40px;
+            max-height: 80px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        #chatbot-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        #chatbot-send {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        #chatbot-send:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        #chatbot-send:active {
+            transform: scale(0.95);
+        }
+
+        /* Code styling */
+        code {
+            background: #f1f5f9;
+            color: #7c3aed;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            #chatbot-popup {
+                width: 95%;
+                height: 85%;
+                right: 2.5%;
+                bottom: 100px;
+            }
+            
+            #chatbot-btn {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+                font-size: 24px;
+            }
+            
+            .message-content {
+                font-size: 13px;
+                max-width: 85%;
+            }
+        }
+
+        /* Enhanced animations */
+        .message.bot .message-content {
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .message.user .message-content {
+            animation: slideInRight 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot Button -->
+    <button id="chatbot-btn">
+        🤖
+        <span class="notification-badge">!</span>
+    </button>
+
+    <!-- Chatbot Popup -->
+    <div id="chatbot-popup">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <div>
+                    <h3>🗳️ Votezy AI Assistant</h3>
+                    <div class="status">
+                        <span class="status-dot"></span>
+                        Online
+                    </div>
+                </div>
+            </div>
+            <button id="chatbot-close">&times;</button>
+        </div>
+        
+        <div id="chatbot-messages"></div>
+        
+        <div class="chatbot-input-area">
+            <textarea id="chatbot-input" placeholder="Type your question about voting, registration, or elections..." rows="1"></textarea>
+            <button id="chatbot-send">➤</button>
+        </div>
+    </div>
+
+    <script>
+        class VotezyAI {
+            constructor() {
+                this.isOpen = false;
+                this.isTyping = false;
+                this.conversationHistory = [];
+                this.userRole = this.getUserRole();
+                this.userName = this.getUserName();
+                
+                // Knowledge base for intelligent responses
+                this.knowledgeBase = {
+                    voting: {
+                        howToVote: "To cast your vote on Votezy: 1) Login to your voter account 2) Browse available candidates 3) Select your preferred candidate 4) Confirm your vote 5) You'll receive a confirmation receipt",
+                        eligibility: "To vote, you must be: 1) 18+ years old 2) Registered as a voter 3) Have completed your profile 4) Haven't voted yet in the current election",
+                        security: "Votezy uses advanced encryption, Aadhaar-based verification, and secure protocols to ensure your vote remains private and tamper-proof"
+                    },
+                    registration: {
+                        voter: "Voter Registration: 1) Visit Votezy platform 2) Click 'Register as Voter' 3) Provide full name, username, password 4) Verify your identity 5) Complete your profile",
+                        candidate: "Candidate Registration: 1) Visit Votezy platform 2) Click 'Register as Candidate' 3) Provide full name, username, password 4) Complete profile with party name and symbol 5) Wait for admin approval",
+                        documents: "Required documents: Aadhaar card, valid email, phone number for OTP verification"
+                    },
+                    results: {
+                        when: "Election results are declared by the admin after voting period ends. You can check the results section once declared.",
+                        viewing: "To view results: 1) Go to Results section 2) View candidate standings 3) See vote counts and percentages 4) Check winner announcement"
+                    },
+                    technical: {
+                        login: "Login Issues: 1) Check username/password 2) Ensure caps lock is off 3) Try password reset 4) Contact support if issues persist",
+                        voting_status: "Check your voting status in your profile dashboard - it shows if you've already voted",
+                        profile: "Complete your profile: 1) Login to your account 2) Go to Profile section 3) Fill all required fields 4) Save changes"
+                    }
+                };
+
+                this.quickActions = [
+                    "How to vote?",
+                    "Registration help",
+                    "Check voting status", 
+                    "View candidates",
+                    "Election results",
+                    "Technical support",
+                    "Account help",
+                    "About Votezy"
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.showWelcomeMessage();
+                this.removeNotificationAfterDelay();
+            }
+
+            setupEventListeners() {
+                const chatbotBtn = document.getElementById('chatbot-btn');
+                const chatbotClose = document.getElementById('chatbot-close');
+                const chatbotSend = document.getElementById('chatbot-send');
+                const chatbotInput = document.getElementById('chatbot-input');
+
+                chatbotBtn.addEventListener('click', () => this.toggleChat());
+                chatbotClose.addEventListener('click', () => this.closeChat());
+                chatbotSend.addEventListener('click', () => this.sendMessage());
+                
+                chatbotInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                chatbotInput.addEventListener('input', (e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
+                });
+
+                // Close on outside click
+                document.addEventListener('click', (e) => {
+                    const popup = document.getElementById('chatbot-popup');
+                    const btn = document.getElementById('chatbot-btn');
+                    
+                    if (this.isOpen && !popup.contains(e.target) && !btn.contains(e.target)) {
+                        this.closeChat();
+                    }
+                });
+            }
+
+            getUserRole() {
+                // Try to get from URL params or default to GUEST
+                return new URLSearchParams(window.location.search).get('role') || 'GUEST';
+            }
+
+            getUserName() {
+                return new URLSearchParams(window.location.search).get('user') || 'User';
+            }
+
+            removeNotificationAfterDelay() {
+                setTimeout(() => {
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        badge.style.display = 'none';
+                    }
+                }, 10000); // Remove after 10 seconds
+            }
+
+            toggleChat() {
+                if (this.isOpen) {
+                    this.closeChat();
+                } else {
+                    this.openChat();
+                }
+            }
+
+            openChat() {
+                const popup = document.getElementById('chatbot-popup');
+                const badge = document.querySelector('.notification-badge');
+                
+                popup.classList.add('active');
+                this.isOpen = true;
+                
+                if (badge) badge.style.display = 'none';
+                
+                setTimeout(() => {
+                    document.getElementById('chatbot-input').focus();
+                }, 300);
+            }
+
+            closeChat() {
+                const popup = document.getElementById('chatbot-popup');
+                popup.classList.remove('active');
+                this.isOpen = false;
+            }
+
+            showWelcomeMessage() {
+                setTimeout(() => {
+                    const welcomeMsg = `
+                        <div class="welcome-message">
+                            🗳️ Welcome to Votezy AI Assistant!
+                        </div>
+                        <p>Hello ${this.userName}! I'm your intelligent voting companion. I can help you with:</p>
+                        <ul class="feature-list">
+                            <li>Voter & Candidate Registration</li>
+                            <li>How to Cast Your Vote</li>
+                            <li>Check Voting Status & Results</li>
+                            <li>Technical Support & Troubleshooting</li>
+                            <li>Election Information & Guidelines</li>
+                            <li>Account Management</li>
+                        </ul>
+                        <p>What would you like to know about? Just ask me anything!</p>
+                    `;
+                    
+                    this.addBotMessage(welcomeMsg, true);
+                }, 1000);
+            }
+
+            async sendMessage() {
+                const input = document.getElementById('chatbot-input');
+                const message = input.value.trim();
+                
+                if (!message || this.isTyping) return;
+
+                this.addUserMessage(message);
+                input.value = '';
+                input.style.height = 'auto';
+
+                // Show typing indicator
+                this.showTypingIndicator();
+                
+                // Simulate processing delay for more realistic feel
+                setTimeout(async () => {
+                    const response = await this.generateResponse(message);
+                    this.hideTypingIndicator();
+                    this.addBotMessage(response);
+                }, 800 + Math.random() * 1000);
+            }
+
+            addUserMessage(message) {
+                const messagesContainer = document.getElementById('chatbot-messages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message user';
+                
+                messageElement.innerHTML = `
+                    <div class="message-avatar">👤</div>
+                    <div class="message-content">${this.escapeHtml(message)}</div>
+                `;
+                
+                messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                this.conversationHistory.push({ role: 'user', message });
+            }
+
+            addBotMessage(message, showQuickActions = false) {
+                const messagesContainer = document.getElementById('chatbot-messages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message bot';
+                
+                messageElement.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        ${message}
+                        ${showQuickActions ? this.generateQuickActions() : ''}
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageElement);
+                this.scrollToBottom();
+                this.conversationHistory.push({ role: 'bot', message });
+
+                // Add click listeners for quick actions
+                if (showQuickActions) {
+                    this.attachQuickActionListeners(messageElement);
+                }
+            }
+
+            generateQuickActions() {
+                const actions = this.quickActions.slice(0, 4); // Show first 4
+                return `
+                    <div class="quick-actions">
+                        ${actions.map(action => `<button class="quick-action" data-action="${action}">${action}</button>`).join('')}
+                    </div>
+                `;
+            }
+
+            attachQuickActionListeners(messageElement) {
+                const quickActions = messageElement.querySelectorAll('.quick-action');
+                quickActions.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.getAttribute('data-action');
+                        this.handleQuickAction(action);
+                    });
+                });
+            }
+
+            handleQuickAction(action) {
+                document.getElementById('chatbot-input').value = action;
+                this.sendMessage();
+            }
+
+            showTypingIndicator() {
+                const messagesContainer = document.getElementById('chatbot-messages');
+                const typingElement = document.createElement('div');
+                typingElement.className = 'message bot typing';
+                typingElement.id = 'typing-indicator';
+                
+                typingElement.innerHTML = `
+                    <div class="message-avatar">🤖</div>
+                    <div class="typing-indicator">
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(typingElement);
+                this.scrollToBottom();
+                this.isTyping = true;
+            }
+
+            hideTypingIndicator() {
+                const typingElement = document.getElementById('typing-indicator');
+                if (typingElement) {
+                    typingElement.remove();
+                }
+                this.isTyping = false;
+            }
+
+            async generateResponse(userMessage) {
+                const message = userMessage.toLowerCase();
+                
+                // Intent detection and response generation
+                if (this.matchesIntent(message, ['vote', 'voting', 'cast vote', 'how to vote'])) {
+                    return this.getVotingHelp();
+                }
+                
+                if (this.matchesIntent(message, ['register', 'registration', 'sign up', 'create account'])) {
+                    return this.getRegistrationHelp();
+                }
+                
+                if (this.matchesIntent(message, ['candidate', 'candidates', 'who can i vote'])) {
+                    return this.getCandidateInfo();
+                }
+                
+                if (this.matchesIntent(message, ['result', 'results', 'winner', 'who won'])) {
+                    return this.getResultsInfo();
+                }
+                
+                if (this.matchesIntent(message, ['status', 'voted', 'check', 'have i voted'])) {
+                    return this.getStatusCheck();
+                }
+                
+                if (this.matchesIntent(message, ['login', 'password', 'forgot', 'access'])) {
+                    return this.getLoginHelp();
+                }
+                
+                if (this.matchesIntent(message, ['profile', 'account', 'update', 'change'])) {
+                    return this.getProfileHelp();
+                }
+                
+                if (this.matchesIntent(message, ['about', 'votezy', 'platform', 'what is'])) {
+                    return this.getAboutInfo();
+                }
+                
+                if (this.matchesIntent(message, ['security', 'safe', 'privacy', 'secure'])) {
+                    return this.getSecurityInfo();
+                }
+                
+                if (this.matchesIntent(message, ['help', 'support', 'contact', 'assistance'])) {
+                    return this.getGeneralHelp();
+                }
+                
+                if (this.matchesIntent(message, ['hello', 'hi', 'hey', 'greetings'])) {
+                    return this.getGreeting();
+                }
+                
+                if (this.matchesIntent(message, ['thank', 'thanks', 'bye', 'goodbye'])) {
+                    return this.getThankYouResponse();
+                }
+                
+                // Default response for unmatched queries
+                return this.getDefaultResponse(message);
+            }
+
+            matchesIntent(message, keywords) {
+                return keywords.some(keyword => message.includes(keyword));
+            }
+
+            getVotingHelp() {
+                if (this.userRole === 'VOTER') {
+                    return `
+                        <strong>🗳️ How to Cast Your Vote on Votezy:</strong><br><br>
+                        <strong>Step-by-step process:</strong><br>
+                        1. <strong>Login</strong> to your voter account<br>
+                        2. <strong>Browse candidates</strong> - view their profiles and party details<br>
+                        3. <strong>Select your choice</strong> - click on your preferred candidate<br>
+                        4. <strong>Confirm your vote</strong> - review and submit<br>
+                        5. <strong>Get confirmation</strong> - you'll receive a receipt<br><br>
+                        <strong>Important:</strong> You can only vote once per election. Make sure you've reviewed all candidates before making your final choice.<br><br>
+                        Need help with login or technical issues? Just ask!
+                    `;
+                } else if (this.userRole === 'CANDIDATE') {
+                    return `
+                        <strong>📊 Voting Information for Candidates:</strong><br><br>
+                        As a candidate, you can:<br>
+                        • <strong>View your vote count</strong> in your dashboard<br>
+                        • <strong>Check your ranking</strong> against other candidates<br>
+                        • <strong>Monitor election progress</strong><br>
+                        • <strong>View results</strong> once declared by admin<br><br>
+                        Remember: Candidates cannot cast votes in the same election they're participating in.<br><br>
+                        Want to know about your current standings or profile completion?
+                    `;
+                } else {
+                    return `
+                        <strong>🗳️ Voting on Votezy Platform:</strong><br><br>
+                        To participate in elections, you need to:<br>
+                        1. <strong>Register as a Voter</strong><br>
+                        2. <strong>Complete your profile</strong><br>
+                        3. <strong>Verify your identity</strong><br>
+                        4. <strong>Wait for election to start</strong><br><br>
+                        <strong>Voting Process:</strong><br>
+                        • Login to your account<br>
+                        • Browse available candidates<br>
+                        • Select and confirm your choice<br>
+                        • Receive voting confirmation<br><br>
+                        Ready to register? Click the "Register" button on the homepage!
+                    `;
+                }
+            }
+
+            getRegistrationHelp() {
+                return `
+                    <strong>📝 Registration Help:</strong><br><br>
+                    
+                    <strong>🗳️ Voter Registration:</strong><br>
+                    1. Click <strong>"Voter"</strong> on the homepage<br>
+                    2. Fill in: Full Name, Username, Password<br>
+                    3. Verify your email/phone<br>
+                    4. Complete profile verification<br>
+                    5. Ready to vote!<br><br>
+                    
+                    <strong>🏛️ Candidate Registration:</strong><br>
+                    1. Click <strong>"Candidate"</strong> on the homepage<br>
+                    2. Provide personal details<br>
+                    3. Add <strong>Party Name</strong> and <strong>Symbol</strong><br>
+                    4. Submit for admin approval<br>
+                    5. Profile must be "Completed" to participate<br><br>
+                    
+                    <strong>📋 Required Information:</strong><br>
+                    • Valid email address<br>
+                    • Phone number for verification<br>
+                    • Government ID (Aadhaar recommended)<br>
+                    • Strong password (8+ characters)<br><br>
+                    
+                    Having trouble with registration? Let me know the specific issue!
+                `;
+            }
+
+            getCandidateInfo() {
+                return `
+                    <strong>👥 Candidate Information:</strong><br><br>
+                    
+                    <strong>To view candidates:</strong><br>
+                    • Visit the <strong>Candidates section</strong> on the platform<br>
+                    • Browse profiles of all registered candidates<br>
+                    • View their party names and symbols<br>
+                    • Read their platforms and policies<br><br>
+                    
+                    <strong>Candidate Requirements:</strong><br>
+                    • Must be registered as CANDIDATE<br>
+                    • Profile must be "Completed"<br>
+                    • Unique party name and symbol<br>
+                    • Admin approval required<br><br>
+                    
+                    <strong>During Elections:</strong><br>
+                    Only candidates with "Completed" status appear on voting ballots. You can see their:<br>
+                    • Full name and party details<br>
+                    • Campaign symbol<br>
+                    • Current vote count (if results are public)<br><br>
+                    
+                    Want to know about a specific candidate or how to become one?
+                `;
+            }
+
+            getResultsInfo() {
+                return `
+                    <strong>📊 Election Results Information:</strong><br><br>
+                    
+                    <strong>Results Status:</strong><br>
+                    • Results are declared by <strong>Election Admin</strong><br>
+                    • Available in the <strong>Results section</strong> after declaration<br>
+                    • Real-time vote counting<br>
+                    • Transparent and auditable<br><br>
+                    
+                    <strong>What you can see:</strong><br>
+                    • 🏆 <strong>Winner announcement</strong><br>
+                    • 📈 <strong>Vote counts</strong> for each candidate<br>
+                    • 📊 <strong>Percentage breakdown</strong><br>
+                    • 🎯 <strong>Total votes cast</strong><br>
+                    • 🏅 <strong>Candidate rankings</strong><br><br>
+                    
+                    <strong>Result Accessibility:</strong><br>
+                    • Public access after official declaration<br>
+                    • Available to all registered users<br>
+                    • Downloadable reports for transparency<br><br>
+                    
+                    Results not declared yet? Check back after the voting period ends!
+                `;
+            }
+
+            getStatusCheck() {
+                if (this.userRole === 'VOTER') {
+                    return `
+                        <strong>✅ Check Your Voting Status:</strong><br><br>
+                        
+                        <strong>In Your Dashboard:</strong><br>
+                        • Login to your voter account<br>
+                        • Go to <strong>"Profile"</strong> section<br>
+                        • Check <strong>"Voting Status"</strong><br>
+                        • See if you've already voted<br><br>
+                        
+                        <strong>Status Indicators:</strong><br>
+                        🟢 <strong>"Not Voted"</strong> - You can still cast your vote<br>
+                        🔵 <strong>"Vote Cast"</strong> - You've successfully voted<br>
+                        🟡 <strong>"Pending Verification"</strong> - Vote being processed<br><br>
+                        
+                        <strong>API Endpoint (Technical):</strong><br>
+                        <code>GET /api/voting-status</code> returns your current status<br><br>
+                        
+                        Can't access your dashboard? Try logging out and back in, or ask for login help!
+                    `;
+                } else if (this.userRole === 'CANDIDATE') {
+                    return `
+                        <strong>📊 Your Candidate Status:</strong><br><br>
+                        
+                        <strong>Profile Status:</strong><br>
+                        • Check if your profile is <strong>"Completed"</strong><br>
+                        • Ensure party name and symbol are unique<br>
+                        • Verify admin approval status<br><br>
+                        
+                        <strong>Vote Tracking:</strong><br>
+                        • View your current vote count<br>
+                        • See your ranking among candidates<br>
+                        • Monitor election progress<br><br>
+                        
+                        <strong>In Your Dashboard:</strong><br>
+                        Visit <strong>"Candidate Results"</strong> section to see:<br>
+                        • Your total votes received<br>
+                        • Your position/rank<br>
+                        • Election status<br><br>
+                        
+                        Need help completing your profile or checking results?
+                    `;
+                } else {
+                    return `
+                        <strong>📋 Account Status Check:</strong><br><br>
+                        
+                        To check your status, you need to:<br>
+                        1. <strong>Register</strong> first (Voter or Candidate)<br>
+                        2. <strong>Login</strong> to your account<br>
+                        3. <strong>Visit Dashboard</strong> for status updates<br><br>
+                        
+                        <strong>Available Status Types:</strong><br>
+                        • <strong>Voter Status:</strong> Registration, verification, voting history<br>
+                        • <strong>Candidate Status:</strong> Profile completion, approval, vote counts<br>
+                        • <strong>Election Status:</strong> Active, pending, completed<br><br>
+                        
+                        Ready to get started? Choose your role and register today!
+                    `;
+                }
+            }
+
+            getLoginHelp() {
+                return `
+                    <strong>🔐 Login & Access Help:</strong><br><br>
+                    
+                    <strong>Login Steps:</strong><br>
+                    1. Go to Votezy homepage<br>
+                    2. Click your role (Voter/Candidate/Admin)<br>
+                    3. Enter <strong>Username</strong> and <strong>Password</strong><br>
+                    4. Click "Login"<br><br>
+                    
+                    <strong>Common Issues & Solutions:</strong><br>
+                    🔴 <strong>Wrong credentials:</strong> Double-check username and password<br>
+                    🔴 <strong>Caps Lock:</strong> Ensure it's off<br>
+                    🔴 <strong>Account locked:</strong> Contact support<br>
+                    🔴 <strong>Browser issues:</strong> Clear cache/cookies<br><br>
+                    
+                    <strong>Forgot Password?</strong><br>
+                    • Use the password reset feature<br>
+                    • Check your registered email<br>
+                    • Or contact support: votezy9464@gmail.com<br><br>
+                    
+                    <strong>Security Features:</strong><br>
+                    • Secure encrypted login<br>
+                    • Session timeout for safety<br>
+                    • OTP verification available<br><br>
+                    
+                    Still having trouble? Let me know your specific login issue!
+                `;
+            }
+
+            getProfileHelp() {
+                if (this.userRole === 'VOTER') {
+                    return `
+                        <strong>👤 Voter Profile Management:</strong><br><br>
+                        
+                        <strong>Update Your Profile:</strong><br>
+                        • <strong>Personal Info:</strong> Name, contact details<br>
+                        • <strong>Password:</strong> Change securely anytime<br>
+                        • <strong>Verification:</strong> Complete identity verification<br><br>
+                        
+                        <strong>Profile Sections:</strong><br>
+                        🏠 <strong>Dashboard:</strong> Overview and voting status<br>
+                        👤 <strong>Profile:</strong> Personal information<br>
+                        🔒 <strong>Security:</strong> Password and verification<br>
+                        📊 <strong>History:</strong> Your voting participation<br><br>
+                        
+                        <strong>API Endpoints:</strong><br>
+                        • <code>GET /api/profile</code> - View profile<br>
+                        • <code>PUT /api/update-password</code> - Change password<br><br>
+                        
+                        Need help with specific profile updates?
+                    `;
+                } else if (this.userRole === 'CANDIDATE') {
+                    return `
+                        <strong>🏛️ Candidate Profile Management:</strong><br><br>
+                        
+                        <strong>Complete Your Profile:</strong><br>
+                        • <strong>Party Name:</strong> Must be unique<br>
+                        • <strong>Symbol:</strong> Choose distinctive symbol<br>
+                        • <strong>Status:</strong> Must reach "Completed"<br><br>
+                        
+                        <strong>Profile Requirements:</strong><br>
+                        ✅ Valid party name (not taken)<br>
+                        ✅ Unique symbol<br>
+                        ✅ Personal details verified<br>
+                        ✅ Admin approval<br><br>
+                        
+                        <strong>Available Actions:</strong><br>
+                        • Update party information<br>
+                        • Change password<br>
+                        • View voting results<br>
+                        • Check completion status<br><br>
+                        
+                        <strong>API Endpoints:</strong><br>
+                        • <code>GET /api/candidate/profile</code><br>
+                        • <code>PUT /api/candidate/profile</code><br><br>
+                        
+                        Having issues with profile completion?
+                    `;
+                } else {
+                    return `
+                        <strong>⚙️ Account Profile Help:</strong><br><br>
+                        
+                        <strong>Getting Started:</strong><br>
+                        1. <strong>Register</strong> your account first<br>
+                        2. <strong>Choose your role</strong> (Voter/Candidate)<br>
+                        3. <strong>Complete verification</strong><br>
+                        4. <strong>Access profile management</strong><br><br>
+                        
+                        <strong>Profile Features:</strong><br>
+                        • Personal information management<br>
+                        • Security settings<br>
+                        • Role-specific options<br>
+                        • Activity history<br><br>
+                        
+                        Ready to create your account and complete your profile?
+                    `;
+                }
+            }
+
+            getAboutInfo() {
+                return `
+                    <strong>🗳️ About Votezy Platform:</strong><br><br>
+                    
+                    <strong>What is Votezy?</strong><br>
+                    Votezy is a modern, secure online voting platform designed to make elections more accessible, transparent, and efficient. Built with cutting-edge technology for India's digital democracy.<br><br>
+                    
+                    <strong>🎯 Key Features:</strong><br>
+                    • <strong>Secure Online Voting:</strong> End-to-end encryption<br>
+                    • <strong>Aadhaar Integration:</strong> Identity verification<br>
+                    • <strong>Real-time Results:</strong> Instant vote counting<br>
+                    • <strong>Mobile Friendly:</strong> Vote from anywhere<br>
+                    • <strong>Transparent Process:</strong> Auditable system<br><br>
+                    
+                    <strong>💻 Technology Stack:</strong><br>
+                    • Backend: Java Spring Boot<br>
+                    • Database: MySQL<br>
+                    • Frontend: Modern HTML/CSS/JS<br>
+                    • Security: Advanced encryption<br><br>
+                    
+                    <strong>👨‍💻 Developed by:</strong><br>
+                    Students from Technocrats Group of Institutions, Bhopal - passionate about digitizing India's democratic process.<br><br>
+                    
+                    <strong>🚀 Mission:</strong> Making voting accessible, secure, and transparent for every eligible citizen.<br><br>
+                    
+                    Want to know more about any specific feature?
+                `;
+            }
+
+            getSecurityInfo() {
+                return `
+                    <strong>🔒 Votezy Security & Privacy:</strong><br><br>
+                    
+                    <strong>🛡️ Security Measures:</strong><br>
+                    • <strong>End-to-End Encryption:</strong> Your data is protected<br>
+                    • <strong>Aadhaar Verification:</strong> Prevents duplicate voting<br>
+                    • <strong>Secure Login:</strong> Password encryption & OTP<br>
+                    • <strong>Session Management:</strong> Auto-logout for safety<br>
+                    • <strong>Database Security:</strong> Encrypted storage<br><br>
+                    
+                    <strong>🎯 Privacy Protection:</strong><br>
+                    • Your vote remains <strong>anonymous</strong><br>
+                    • Personal data is <strong>encrypted</strong><br>
+                    • No vote tracking to individuals<br>
+                    • Secure data transmission<br><br>
+                    
+                    <strong>🔐 Authentication Levels:</strong><br>
+                    1. <strong>Username/Password</strong><br>
+                    2. <strong>OTP Verification</strong> (optional)<br>
+                    3. <strong>Biometric/Face Auth</strong> (planned)<br><br>
+                    
+                    <strong>🏛️ Compliance:</strong><br>
+                    • Election Commission guidelines<br>
+                    • Data protection standards<br>
+                    • Audit-ready logging<br>
+                    • Transparent processes<br><br>
+                    
+                    <strong>⚠️ Your Role in Security:</strong><br>
+                    • Use strong passwords<br>
+                    • Don't share login credentials<br>
+                    • Logout after voting<br>
+                    • Report suspicious activity<br><br>
+                    
+                    Have specific security concerns? I'm here to help!
+                `;
+            }
+
+            getGeneralHelp() {
+                return `
+                    <strong>🆘 Votezy Support Center:</strong><br><br>
+                    
+                    <strong>📞 Contact Support:</strong><br>
+                    • <strong>Email:</strong> votezy9464@gmail.com<br>
+                    • <strong>Phone:</strong> 9889626386<br>
+                    • <strong>Live Chat:</strong> Right here with me!<br><br>
+                    
+                    <strong>🔧 Common Issues I Can Help With:</strong><br>
+                    • Registration problems<br>
+                    • Login difficulties<br>
+                    • Voting process guidance<br>
+                    • Profile completion<br>
+                    • Technical troubleshooting<br>
+                    • Election information<br><br>
+                    
+                    <strong>📚 Self-Help Resources:</strong><br>
+                    • Platform tutorials<br>
+                    • FAQ section<br>
+                    • Video guides (coming soon)<br>
+                    • Step-by-step walkthroughs<br><br>
+                    
+                    <strong>🕒 Support Hours:</strong><br>
+                    • AI Assistant: 24/7 (that's me!)<br>
+                    • Human Support: Business hours<br>
+                    • Emergency issues: Email anytime<br><br>
+                    
+                    <strong>🏥 Emergency Issues:</strong><br>
+                    For urgent problems during elections, contact our support team immediately.<br><br>
+                    
+                    What specific help do you need today?
+                `;
+            }
+
+            getGreeting() {
+                const greetings = [
+                    `Hello ${this.userName}! 👋 Great to see you on Votezy! I'm your AI voting assistant, ready to help with anything related to elections, voting, or the platform. What can I assist you with today?`,
+                    `Hi there! 🗳️ Welcome to Votezy's AI Assistant. Whether you need help with registration, voting, checking results, or technical support, I'm here for you. What would you like to know?`,
+                    `Hey ${this.userName}! 🌟 I'm the Votezy AI Assistant, your smart companion for all things voting. From registration to casting votes to checking results - I can help with it all. How can I assist you today?`
+                ];
+                
+                return greetings[Math.floor(Math.random() * greetings.length)];
+            }
+
+            getThankYouResponse() {
+                const responses = [
+                    "You're very welcome! 😊 I'm always here to help with your voting needs. Feel free to ask anytime you have questions about Votezy!",
+                    "Happy to help! 🗳️ Remember, every vote counts in building a stronger democracy. Don't hesitate to reach out if you need more assistance!",
+                    "My pleasure! 🌟 It's great to see citizens like you engaged in the democratic process. Come back anytime you need support with voting!"
+                ];
+                
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            getDefaultResponse(message) {
+                // Try to provide contextual help based on keywords
+                if (message.includes('api') || message.includes('endpoint')) {
+                    return `
+                        <strong>🔌 Votezy API Information:</strong><br><br>
+                        
+                        <strong>Main Endpoints:</strong><br>
+                        • <code>/api/profile</code> - User profile management<br>
+                        • <code>/api/cast-vote</code> - Vote casting<br>
+                        • <code>/api/candidates</code> - View candidates<br>
+                        • <code>/api/election-results</code> - Results (when declared)<br>
+                        • <code>/api/voting-status</code> - Check if voted<br><br>
+                        
+                        <strong>Admin Endpoints:</strong><br>
+                        • <code>/api/admin/voters</code> - Voter management<br>
+                        • <code>/api/admin/candidates</code> - Candidate management<br>
+                        • <code>/api/admin/declare-results</code> - Declare results<br><br>
+                        
+                        Need specific API documentation or technical details?
+                    `;
+                }
+                
+                // Default intelligent response
+                return `
+                    <strong>🤔 I understand you're looking for help!</strong><br><br>
+                    
+                    I didn't quite catch your specific question, but I'm here to help with:<br><br>
+                    
+                    <strong>🗳️ Voting:</strong> How to cast votes, check status<br>
+                    <strong>📝 Registration:</strong> Voter/Candidate signup<br>
+                    <strong>👥 Candidates:</strong> View profiles, information<br>
+                    <strong>📊 Results:</strong> Election outcomes, statistics<br>
+                    <strong>🔐 Account:</strong> Login, profile, security<br>
+                    <strong>❓ Support:</strong> Technical help, troubleshooting<br><br>
+                    
+                    Could you please rephrase your question or let me know which area you'd like help with? I'm designed to understand natural language, so feel free to ask in your own words!<br><br>
+                    
+                    <em>Tip: Try asking things like "How do I vote?", "Show me candidates", or "I need login help"</em>
+                `;
+            }
+
+            scrollToBottom() {
+                const messagesContainer = document.getElementById('chatbot-messages');
+                setTimeout(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 100);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize the Votezy AI Chatbot
+        document.addEventListener('DOMContentLoaded', () => {
+            new VotezyAI();
+        });
+    </script>
+</body>
+</html>
